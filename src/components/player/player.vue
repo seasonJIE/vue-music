@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 export default {
   computed: {
