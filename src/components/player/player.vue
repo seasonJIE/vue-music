@@ -89,10 +89,10 @@ export default {
   },
   methods: {
     back() {
-      this.setFullScreen(false);
+      this.setFullScreen(false)
     },
     open() {
-      this.setFullScreen(true);
+      this.setFullScreen(true)
     },
     enter(el,done) {
       const {x,y,scale} = this._getPosAndScale()
