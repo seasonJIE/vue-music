@@ -1,11 +1,6 @@
 <template>
   <div class="player" v-show="playlist.length>0">
-    <transition name="normal"
-                @enter="enter"
-                @after-enter="afterEnter"  
-                @leave="leave"
-                @after-leave="afterLeave"
-    >
+    <transition name="normal" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image">
@@ -49,9 +44,9 @@
           <div class="operators">
             <div class="icon i-left">循环</div>
             <div class="icon i-left"><<</div>
-            <div @click="togglePlaying" class="icon i-center" v-text="playIcon" ></div>
-            <div class="icon i-right">>></div>
-            <div class="icon i-right">收藏</div>
+                <div @click="togglePlaying" class="icon i-center" v-text="playIcon"></div>
+                <div class="icon i-right">>></div>
+                <div class="icon i-right">收藏</div>
             </div>
           </div>
         </div>
@@ -72,7 +67,7 @@
       </div>
     </transition>
     <audio ref="audio" :src="currentSong.url"></audio>
-  </div>
+    </div>
 </template>
 
 <script>
@@ -80,11 +75,11 @@ import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 export default {
   computed: {
-    playIcon(){
-      return this.playing?'stop':'go'
+    playIcon() {
+      return this.playing ? 'stop' : 'go'
     },
     ...mapGetters(['fullScreen', 'playlist', 'currentSong',
-    'playing'
+      'playing'
     ])
   },
   methods: {
@@ -94,78 +89,78 @@ export default {
     open() {
       this.setFullScreen(true)
     },
-    enter(el,done) {
-      const {x,y,scale} = this._getPosAndScale()
+    enter(el, done) {
+      const { x, y, scale } = this._getPosAndScale()
       let animation = {
-        0:{
-          transform:`translate3d(${x}px,${y}px,0 ) scale(${scale})`
+        0: {
+          transform: `translate3d(${x}px,${y}px,0 ) scale(${scale})`
         },
-        60:{
-          transform:`translate3d(0,0,0) scale(1.1)`
+        60: {
+          transform: `translate3d(0,0,0) scale(1.1)`
         },
-        100:{
-          transform:`translate3d(0,0,0) scale(1)`
+        100: {
+          transform: `translate3d(0,0,0) scale(1)`
         }
       }
 
       animations.registerAnimation({
-        name:'move',
+        name: 'move',
         animation,
-        presets:{
-          duration:500,
-          esing:'liner'
+        presets: {
+          duration: 500,
+          esing: 'liner'
         }
       })
-      animations.runAnimation(this.$refs.cdWrapper,'move',done)
+      animations.runAnimation(this.$refs.cdWrapper, 'move', done)
     },
     afterEnter() {
       animations.unregisterAnimation('move')
       this.$refs.cdWrapper.style.animation = ''
     },
-    leave(el,done){
+    leave(el, done) {
       this.$refs.cdWrapper.style.transition = 'all 0.5s'
-      const {x,y,scale} = this._getPosAndScale()
+      const { x, y, scale } = this._getPosAndScale()
       this.$refs.cdWrapper.style.transform = `translate3d(${x}px,${y}px,0 ) scale(${scale})`
-      this.$refs.cdWrapper.addEventListener('transitionend',done)
+      this.$refs.cdWrapper.addEventListener('transitionend', done)
     },
-    afterLeave(){
+    afterLeave() {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style.transform = ''
     },
-    togglePlaying(){
+    togglePlaying() {
       this.setPlayingState(!this.playing)
     },
-    _getPosAndScale(){
+    _getPosAndScale() {
       const targetWidth = 40
       const paddingLeft = 40
       const paddingBottom = 30
       const paddingTop = 80
       const width = window.innerWidth * 0.8
-      const scale = targetWidth /width
-      const x = -(window.innerWidth/2-paddingLeft)
-      const y = window.innerHeight - paddingTop - width/2 - paddingBottom
+      const scale = targetWidth / width
+      const x = -(window.innerWidth / 2 - paddingLeft)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
       return {
-        x,y,scale
+        x, y, scale
       }
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState:'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE'
     })
   },
-  watch:{
-    currentSong(){
-      this.$nextTick(()=>{
-        this.$refs.audio.volume=0.2
+  watch: {
+    currentSong() {
+      this.$nextTick(() => {
+        this.$refs.audio.volume = 0.2
         this.$refs.audio.play()
       })
     },
     playing(newPlaying) {
       const audio = this.$refs.audio
-      this.$nextTick(()=>{
-        newPlaying?audio.play():audio.pause()
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause()
       })
-     
+
     }
   }
 };
@@ -380,19 +375,22 @@ export default {
         }
       }
     }
-    &.normal-enter-active,&.normal-leave-active{
+    &.normal-enter-active,
+    &.normal-leave-active {
       transition: all 0.5s;
-      .top,.bottom {
+      .top,
+      .bottom {
         transition: all 0.5s cubic-bezier(0.89, 0.4, 0.3, 1.3);
       }
     }
-    &.normal-enter,&.normal-leave-to {
+    &.normal-enter,
+    &.normal-leave-to {
       opacity: 0;
       .top {
-        transform: translate3d(0,-100px,0)
+        transform: translate3d(0, -100px, 0);
       }
       .bottom {
-        transform: translate3d(0,100px,0)
+        transform: translate3d(0, 100px, 0);
       }
     }
   }
@@ -406,10 +404,12 @@ export default {
     width: 100%;
     height: 60px;
     background: #333;
-    &.mini-enter-active,&.mini-leave-active {
+    &.mini-enter-active,
+    &.mini-leave-active {
       transition: all 0.5s;
     }
-    &.mini-enter,&.mini-leave-to {
+    &.mini-enter,
+    &.mini-leave-to {
       opacity: 0;
     }
     .icon {
