@@ -15,7 +15,7 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd play" :class="{pause:!playing}">
                 <img :src="currentSong.image">
               </div>
             </div>
@@ -31,21 +31,18 @@
             <span class="dot"></span>
           </div>
           <div class="progress-wrapper">
-            <span class="time time-l">0:00</span>
+            <span class="time time-l" v-text="format(currentTime)"></span>
             <div class="progress-bar-wrapper">
-              <div class="progress-bar">
-                <div class="bar-inner">
-                  <div class="progress"></div>
-                </div>
-              </div>
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange" ></progress-bar>
             </div>
-            <span class="time time-r">5:20</span>
+            <span class="time time-r" v-text="format(currentSong.duration)"></span>
           </div>
           <div class="operators">
             <div class="icon i-left">循环</div>
-            <div class="icon i-left"><<</div>
+            <div @click="prev" class="icon i-left">
+              <<</div>
                 <div @click="togglePlaying" class="icon i-center" v-text="playIcon"></div>
-                <div class="icon i-right">>></div>
+                <div  @click="next" class="icon i-right">>></div>
                 <div class="icon i-right">收藏</div>
             </div>
           </div>
@@ -55,31 +52,41 @@
       <div class="min-player" v-show="!fullScreen" @click="open">
         <div class="icon">
           <div class="imgWrapper">
-            <img width="40" height="40" :src="currentSong.image">
+            <img class="play" :class="{pause:!playing}" width="40" height="40" :src="currentSong.image">
           </div>
         </div>
         <div class="text">
           <h2 class="name" v-text="currentSong.name"></h2>
           <p class="desc" v-text="currentSong.singer"></p>
         </div>
-        <div class="control">GO</div>
+        <div @click.stop="togglePlaying" class="control" v-text="playIcon"></div>
         <div class="control">列表</div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url"></audio>
+    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
     </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
+import ProgressBar from 'base/progress-bar/progress-bar'
 export default {
+  data(){
+    return {
+      songReady:false,
+      currentTime:0
+    }
+  },
   computed: {
     playIcon() {
       return this.playing ? 'stop' : 'go'
     },
+    percent() {
+      return this.currentTime / this.currentSong.duration
+    },
     ...mapGetters(['fullScreen', 'playlist', 'currentSong',
-      'playing'
+      'playing','currentIndex'
     ])
   },
   methods: {
@@ -128,7 +135,67 @@ export default {
       this.$refs.cdWrapper.style.transform = ''
     },
     togglePlaying() {
+      // if(!this.songReady){
+      //   return
+      // }
       this.setPlayingState(!this.playing)
+    },
+    prev() {
+      // if(!this.songReady){
+      //   return
+      // }
+      let index = this.currentIndex - 1
+      if(index == -1) {
+        index = this.playlist.length - 1
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlaying()
+      }
+      // this.songReady = false
+    },
+    next() {
+      // if(!this.songReady){
+      //   return
+      // }
+      let index = this.currentIndex + 1
+      if(index == this.playlist.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlaying()
+      }
+      // this.songReady = false
+    },
+    ready() {
+      this.songReady = true
+    },
+    error() {
+      this.songReady = true
+    },
+    updateTime(e){
+      this.currentTime = e.target.currentTime
+    },
+    format(interval) {
+      interval = interval | 0
+      const minute = this._pad(interval / 60 | 0)
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
+    onProgressBarChange(percent) {
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      if(!this.playing){
+        this.togglePlaying()
+      }
+    },
+    _pad(num , n = 2) {
+      let len = num.toString().length
+      while(len<n) {
+        num = '0' + num
+        len ++
+      }
+      return num
     },
     _getPosAndScale() {
       const targetWidth = 40
@@ -145,13 +212,14 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex:'SET_CURRENT_INDEX'
     })
   },
   watch: {
     currentSong() {
       this.$nextTick(() => {
-        this.$refs.audio.volume = 0.2
+        this.$refs.audio.volume = 0.1
         this.$refs.audio.play()
       })
     },
@@ -162,6 +230,9 @@ export default {
       })
 
     }
+  },
+  components:{
+    ProgressBar
   }
 };
 </script>
@@ -241,6 +312,12 @@ export default {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+            &.play {
+              animation: rotate 20s linear infinite;
+            }
+            &.pause {
+              animation-play-state: paused;
+            }
             img {
               position: absolute;
               left: 0;
@@ -330,38 +407,7 @@ export default {
         }
         .progress-bar-wrapper {
           flex: 1;
-          .progress-bar {
-            height: 30px;
-            .bar-inner {
-              position: relative;
-              top: 13px;
-              height: 4px;
-              background: rgba(0, 0, 0, 0.3);
-              .progress {
-                position: absolute;
-                height: 100%;
-                background: #ffcd32;
-              }
-              .progress-btn-wrapper {
-                position: absolute;
-                left: -8px;
-                top: -13px;
-                width: 30px;
-                height: 30px;
-                .progress-btn {
-                  position: relative;
-                  top: 7px;
-                  left: 7px;
-                  box-sizing: border-box;
-                  width: 16px;
-                  height: 16px;
-                  border: 3px solid #fff;
-                  border-radius: 50%;
-                  background: #ffcd32;
-                }
-              }
-            }
-          }
+          
         }
       }
       .operators {
@@ -422,6 +468,12 @@ export default {
         width: 100%;
         img {
           border-radius: 50%;
+          &.play {
+            animation: rotate 20s linear infinite;
+          }
+          &.pause {
+            animation-play-state: paused;
+          }
         }
       }
     }
@@ -429,6 +481,7 @@ export default {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      text-align: left;
       flex: 1;
       line-height: 20px;
       overflow: hidden;
@@ -454,6 +507,15 @@ export default {
       padding: 0 10px;
       color: rgba(255, 205, 49, 0.5);
     }
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

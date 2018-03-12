@@ -34,6 +34,7 @@
 						this.singerlist = this.normalizeList(res.data.list)
 					}
 				})
+				
 			},
 			normalizeList(list) {
 				let map = {
