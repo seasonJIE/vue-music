@@ -24,11 +24,12 @@ export function createSong(muiscData) {
       "https://y.gtimg.cn/music/photo_new/T002R300x300M000" +
       muiscData.albummid +
       ".jpg?max_age=2592000",
-    url:"http://fs.w.kugou.com/201803121040/cd1040eeaaac8b43054806c31f0b7b4e/G014/M01/13/0D/roYBAFUPyXWARTkEAFJNYgdQRIU405.mp3"
+    url:
+      "http://fs.w.kugou.com/201803131330/053aa89b37ba33bf872a682c9c49192d/G012/M07/1C/19/rIYBAFUPtx6AV4G3AGZ5d-nijfs460.mp3"
   });
 }
 
-function filterSinger(singer) {
+export function filterSinger(singer) {
 	let ret = []
 	if(!singer) {
 		return ''

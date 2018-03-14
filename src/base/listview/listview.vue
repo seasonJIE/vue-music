@@ -6,7 +6,7 @@
 				<ul>
 					<li @click="selectitem(item)" v-for="item in group.items">
 						<img v-lazy="item.avatar" />
-						<span v-text="item.name"></span>
+						<span class="text" v-text="item.name"></span>
 					</li>
 				</ul>
 			</li>
@@ -179,12 +179,15 @@
 		width: 100%;
 	}
 	.group-title {
-		background: #2C3E40;
+		background: #333;
 		color: #fff;
 		height: 30px;
 		line-height: 30px;
 		text-indent: 10px;
 		font-size: 14px;
 		font-weight: 500;
+	}
+	.text {
+		color: #fff;
 	}
 </style>

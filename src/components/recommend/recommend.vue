@@ -60,11 +60,15 @@
 </script>
 
 <style scoped lang="scss">
+h3 {
+	color: #fff;
+}
 	li {
 		padding: 10px 20px;
 		height: 50px;
 		list-style: none;
 		text-align: left;
+		color: #fff;
 		border-bottom: 1px solid #ddd;
 		.s_img {
 			height: 50px;
